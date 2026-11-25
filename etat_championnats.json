@@ -1,0 +1,33 @@
+{
+ "2026-11-25": {
+  "statut": "aucun_match",
+  "ligues": {
+   "fl1": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "pl": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "liga": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "sa": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "bl": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   }
+  },
+  "maj": "2026-11-25T15:32:53Z"
+ }
+}
