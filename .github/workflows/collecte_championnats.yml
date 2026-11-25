@@ -1,0 +1,70 @@
+name: Championnats (collecte d'un jour ou d'une plage)
+
+# Collecte ESPN (flux Opta) des championnats nationaux pour un jour ou une plage de jours et publie championnats/ sur main.
+# Le code est celui de Camelbaggy/coupes-europe (dépôt public), branche `ref` (main par défaut) : run_ligues.py.
+# Étape 1 (étude : docs/etude_championnats.md du dépôt de code) : lancement manuel seulement ; la collecte quotidienne
+# automatique (battement, notification) viendra à l'étape 3.
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Jour (AAAA-MM-JJ ; vide = aujourd''hui UTC)'
+        required: false
+        type: string
+      du:
+        description: 'Plage : premier jour (AAAA-MM-JJ, avec « au »)'
+        required: false
+        type: string
+      au:
+        description: 'Plage : dernier jour'
+        required: false
+        type: string
+      ligues:
+        description: 'Championnats (fl1,pl,liga,sa,bl)'
+        required: false
+        default: 'fl1,pl,liga,sa,bl'
+        type: string
+      ref:
+        description: 'Branche du code (coupes-europe)'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: championnats
+  cancel-in-progress: false
+
+jobs:
+  collecte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: ${{ inputs.ref }}
+          path: code
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Collecte
+        env:
+          PYTHONUNBUFFERED: "1"
+          JOUR: ${{ inputs.date }}
+          DU: ${{ inputs.du }}
+          AU: ${{ inputs.au }}
+          LIGUES: ${{ inputs.ligues }}
+        run: |
+          OPTS="--donnees $GITHUB_WORKSPACE --ligues ${LIGUES:-fl1,pl,liga,sa,bl}"
+          if [ -n "$DU" ]; then OPTS="$OPTS --du $DU --au ${AU:-$DU}"; elif [ -n "$JOUR" ]; then OPTS="$OPTS --date $JOUR"; fi
+          cd code && python run_ligues.py $OPTS
+
+      - name: Publication
+        run: .github/scripts/publier.sh "chore: championnats ${{ inputs.date }}${{ inputs.du }} (collecte manuelle)"
