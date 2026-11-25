@@ -7,6 +7,7 @@ git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 [ -d championnats ] && git add championnats
 [ -f etat_championnats.json ] && git add etat_championnats.json
+[ -f etat_secondaires.json ] && git add etat_secondaires.json
 if git diff --staged --quiet; then
   echo "Aucune modification de championnats/ à publier."
   exit 0

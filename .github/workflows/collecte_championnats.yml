@@ -71,8 +71,9 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           PYTHONUNBUFFERED: "1"
+          LIGUES: ${{ inputs.ligues }}
         run: |
-          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" || echo "::warning::fiches non mises à jour"
+          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-fl1,fl2,pl,liga,sa,bl}" || echo "::warning::fiches non mises à jour"
       - name: Publication
         env:
           JOURS: ${{ inputs.date }}${{ inputs.du }}${{ inputs.au && ' -> ' || '' }}${{ inputs.au }}

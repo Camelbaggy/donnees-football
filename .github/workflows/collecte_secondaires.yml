@@ -1,0 +1,79 @@
+name: Championnats secondaires (collecte d'un jour ou d'une plage)
+
+# Championnats SECONDAIRES (décision du 26/11/2026 : Portugal, Pays-Bas, Belgique, Turquie, Autriche, Grèce, Norvège) : même collecte que
+# collecte_championnats.yml (code de Camelbaggy/coupes-europe, run_ligues.py), lancée par la même veille (famille « secondaires »), mais
+# état séparé (etat_secondaires.json), AUCUNE alerte d'échec et aucune notification (ces championnats ne sont jamais notifiés).
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Jour (AAAA-MM-JJ ; vide = aujourd''hui UTC)'
+        required: false
+        type: string
+      du:
+        description: 'Plage : premier jour (AAAA-MM-JJ, avec « au »)'
+        required: false
+        type: string
+      au:
+        description: 'Plage : dernier jour'
+        required: false
+        type: string
+      ligues:
+        description: 'Championnats (por,ned,bel,tur,aut,gre,nor)'
+        required: false
+        default: 'por,ned,bel,tur,aut,gre,nor'
+        type: string
+      ref:
+        description: 'Branche du code (coupes-europe)'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: championnats-secondaires
+  cancel-in-progress: false
+
+jobs:
+  collecte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: ${{ inputs.ref }}
+          path: code
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Collecte
+        env:
+          PYTHONUNBUFFERED: "1"
+          JOUR: ${{ inputs.date }}
+          DU: ${{ inputs.du }}
+          AU: ${{ inputs.au }}
+          LIGUES: ${{ inputs.ligues }}
+        run: |
+          OPTS="--donnees $GITHUB_WORKSPACE --ligues ${LIGUES:-por,ned,bel,tur,aut,gre,nor}"
+          if [ -n "$DU" ]; then OPTS="$OPTS --du $DU --au ${AU:-$DU}"; elif [ -n "$JOUR" ]; then OPTS="$OPTS --date $JOUR"; fi
+          cd code && python run_ligues.py $OPTS --etat
+
+      - name: Fiches de club et de joueur (jamais bloquant)
+        if: ${{ !cancelled() }}
+        env:
+          PYTHONUNBUFFERED: "1"
+          LIGUES: ${{ inputs.ligues }}
+        run: |
+          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-por,ned,bel,tur,aut,gre,nor}" || echo "::warning::fiches non mises à jour"
+      - name: Publication
+        env:
+          JOURS: ${{ inputs.date }}${{ inputs.du }}${{ inputs.au && ' -> ' || '' }}${{ inputs.au }}
+        run: |
+          .github/scripts/publier.sh "chore: championnats secondaires ${JOURS:-du jour} (collecte)"
