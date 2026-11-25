@@ -67,4 +67,7 @@ jobs:
           cd code && python run_ligues.py $OPTS
 
       - name: Publication
-        run: .github/scripts/publier.sh "chore: championnats ${{ inputs.date }}${{ inputs.du }} (collecte manuelle)"
+        env:
+          JOURS: ${{ inputs.date }}${{ inputs.du }}${{ inputs.au && ' -> ' || '' }}${{ inputs.au }}
+        run: |
+          .github/scripts/publier.sh "chore: championnats ${JOURS:-du jour} (collecte manuelle)"
