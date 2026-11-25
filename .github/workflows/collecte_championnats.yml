@@ -21,9 +21,9 @@ on:
         required: false
         type: string
       ligues:
-        description: 'Championnats (fl1,pl,liga,sa,bl)'
+        description: 'Championnats (fl1,fl2,pl,liga,sa,bl)'
         required: false
-        default: 'fl1,pl,liga,sa,bl'
+        default: 'fl1,fl2,pl,liga,sa,bl'
         type: string
       ref:
         description: 'Branche du code (coupes-europe)'
@@ -63,7 +63,7 @@ jobs:
           AU: ${{ inputs.au }}
           LIGUES: ${{ inputs.ligues }}
         run: |
-          OPTS="--donnees $GITHUB_WORKSPACE --ligues ${LIGUES:-fl1,pl,liga,sa,bl}"
+          OPTS="--donnees $GITHUB_WORKSPACE --ligues ${LIGUES:-fl1,fl2,pl,liga,sa,bl}"
           if [ -n "$DU" ]; then OPTS="$OPTS --du $DU --au ${AU:-$DU}"; elif [ -n "$JOUR" ]; then OPTS="$OPTS --date $JOUR"; fi
           cd code && python run_ligues.py $OPTS --etat
 

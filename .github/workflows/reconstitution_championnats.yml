@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       ligues:
-        description: 'Championnats (fl1,pl,liga,sa,bl)'
+        description: 'Championnats (fl1,fl2,pl,liga,sa,bl)'
         required: false
-        default: 'fl1,pl,liga,sa,bl'
+        default: 'fl1,fl2,pl,liga,sa,bl'
         type: string
 
 permissions:
@@ -45,7 +45,7 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
           LIGUES: ${{ inputs.ligues }}
-        run: cd code && python run_ligues.py --reconstituer --budget-min 40 --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-fl1,pl,liga,sa,bl}"
+        run: cd code && python run_ligues.py --reconstituer --budget-min 40 --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-fl1,fl2,pl,liga,sa,bl}"
       - name: Fiches de club et de joueur (jamais bloquant)
         if: ${{ !cancelled() }}
         env:
@@ -61,4 +61,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           LIGUES: ${{ inputs.ligues }}
-        run: gh workflow run reconstitution_championnats.yml --repo "$GITHUB_REPOSITORY" --ref main -f "ligues=${LIGUES:-fl1,pl,liga,sa,bl}"
+        run: gh workflow run reconstitution_championnats.yml --repo "$GITHUB_REPOSITORY" --ref main -f "ligues=${LIGUES:-fl1,fl2,pl,liga,sa,bl}"
