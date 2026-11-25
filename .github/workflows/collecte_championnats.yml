@@ -67,6 +67,12 @@ jobs:
           if [ -n "$DU" ]; then OPTS="$OPTS --du $DU --au ${AU:-$DU}"; elif [ -n "$JOUR" ]; then OPTS="$OPTS --date $JOUR"; fi
           cd code && python run_ligues.py $OPTS --etat
 
+      - name: Fiches de club et de joueur (jamais bloquant)
+        if: ${{ !cancelled() }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" || echo "::warning::fiches non mises à jour"
       - name: Publication
         env:
           JOURS: ${{ inputs.date }}${{ inputs.du }}${{ inputs.au && ' -> ' || '' }}${{ inputs.au }}

@@ -46,6 +46,12 @@ jobs:
           PYTHONUNBUFFERED: "1"
           LIGUES: ${{ inputs.ligues }}
         run: cd code && python run_ligues.py --reconstituer --budget-min 40 --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-fl1,pl,liga,sa,bl}"
+      - name: Fiches de club et de joueur (jamais bloquant)
+        if: ${{ !cancelled() }}
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" || echo "::warning::fiches non mises à jour"
       - name: Publication
         if: ${{ !cancelled() }}
         run: |

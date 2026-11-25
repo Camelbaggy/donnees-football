@@ -14,4 +14,6 @@ Tout est en français (logs, messages de commit).
 - `battement.yml` (~330 min, se relance) + `veille_secours.yml` (cron :37) : veille de la collecte quotidienne (`veille_ligues.py`), qui
   relance `collecte_championnats.yml -f date=J` ; `etat_championnats.json` (racine) est lu par la veille et par la notification commune.
 - `reconstitution_championnats.yml` (dispatch, auto-relance) : jours passés de la saison (`run_ligues.py --reconstituer`), classement recalculé.
+- `championnats/clubs/` (fiches de club et de joueur, `fiches_ligues.py`) : régénéré après chaque collecte et chaque reconstitution ;
+  `correspondances.json` = clubs ESPN rapprochés d'une fiche UEFA (preuve : un match de coupe commun).
 - `.nojekyll` doit rester à la racine (Pages sans Jekyll).
