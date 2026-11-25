@@ -1,0 +1,65 @@
+name: Historique des classements (championnats)
+
+# Classements FINAUX des saisons passées des big 5 (historique_classements.py du dépôt de code) : ESPN depuis 2002-03,
+# Wikipédia FR avant, page locale (IT / ES / DE) en secours ; contrôles j = g + n + p, buts pour = buts contre, barème.
+# N'écrit QUE championnats/historique/ (jamais l'état, jamais de notification). Reprenable (une saison lisible n'est plus
+# redemandée, sauf la dernière saison terminée), budget de 40 min, publication à la fin, puis se relance tant qu'il reste
+# des saisons ET que le passage a progressé. Groupe distinct de la collecte du jour : fichiers disjoints.
+on:
+  workflow_dispatch:
+    inputs:
+      ligues:
+        description: 'Championnats (fl1,pl,liga,sa,bl)'
+        required: false
+        default: 'fl1,pl,liga,sa,bl'
+        type: string
+      ref:
+        description: 'Branche du dépôt de code (essai)'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: historique-classements
+  cancel-in-progress: false
+
+jobs:
+  historique:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: ${{ inputs.ref || 'main' }}
+          path: code
+          sparse-checkout: |
+            *.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Historique des classements
+        id: hist
+        env:
+          PYTHONUNBUFFERED: "1"
+          LIGUES: ${{ inputs.ligues }}
+        run: |
+          cd code && python historique_classements.py --budget-min 40 --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-fl1,pl,liga,sa,bl}"
+      - name: Publication
+        if: ${{ !cancelled() }}
+        run: |
+          .github/scripts/publier.sh "chore: championnats (historique des classements)"
+      - name: Relance tant qu'il reste des saisons (et que ce passage a progressé)
+        if: success() && steps.hist.outputs.restants != '' && steps.hist.outputs.restants != '0' && steps.hist.outputs.traites != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LIGUES: ${{ inputs.ligues }}
+          REF: ${{ inputs.ref }}
+        run: |
+          gh workflow run historique_classements.yml --repo "$GITHUB_REPOSITORY" --ref main -f "ligues=${LIGUES:-fl1,pl,liga,sa,bl}" -f "ref=${REF:-main}"
