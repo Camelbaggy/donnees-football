@@ -1,0 +1,40 @@
+name: Battement (collecte quotidienne des championnats)
+
+# GitHub saute ou retarde les crons, jamais les workflow_dispatch. Ce job de ~330 min exécute toutes les 10 min la veille
+# des championnats (veille_ligues.py du dépôt de code Camelbaggy/coupes-europe) : relance collecte_championnats.yml pour le
+# jour en cours dès qu'ESPN compte un nouveau match prêt (terminé depuis le coup d'envoi + 2 h) ou pour le premier relevé
+# du jour ; puis se relance lui-même. Secours : veille_secours.yml (cron horaire) le relance s'il ne tourne pas.
+# Premier lancement : bouton « Run workflow » (ou gh workflow run battement.yml --ref main).
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: battement
+  cancel-in-progress: false
+
+jobs:
+  battement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: main
+          path: code
+          sparse-checkout: |
+            *.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Battement
+        env:
+          PYTHONUNBUFFERED: "1"
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: cd code && python veille_ligues.py --boucle 330

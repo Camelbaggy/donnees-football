@@ -2,8 +2,9 @@ name: Championnats (collecte d'un jour ou d'une plage)
 
 # Collecte ESPN (flux Opta) des championnats nationaux pour un jour ou une plage de jours et publie championnats/ sur main.
 # Le code est celui de Camelbaggy/coupes-europe (dépôt public), branche `ref` (main par défaut) : run_ligues.py.
-# Étape 1 (étude : docs/etude_championnats.md du dépôt de code) : lancement manuel seulement ; la collecte quotidienne
-# automatique (battement, notification) viendra à l'étape 3.
+# Étape 3 : lancé chaque jour par la veille (battement.yml / veille_secours.yml, veille_ligues.py) avec `date` ; écrit aussi
+# etat_championnats.json (lu par la veille et par la notification commune du dépôt de code). Échec = alerte ntfy (secret
+# NTFY_TOPIC de ce dépôt ; absent = simulation), une par jour et par cause.
 on:
   workflow_dispatch:
     inputs:
@@ -64,10 +65,20 @@ jobs:
         run: |
           OPTS="--donnees $GITHUB_WORKSPACE --ligues ${LIGUES:-fl1,pl,liga,sa,bl}"
           if [ -n "$DU" ]; then OPTS="$OPTS --du $DU --au ${AU:-$DU}"; elif [ -n "$JOUR" ]; then OPTS="$OPTS --date $JOUR"; fi
-          cd code && python run_ligues.py $OPTS
+          cd code && python run_ligues.py $OPTS --etat
 
       - name: Publication
         env:
           JOURS: ${{ inputs.date }}${{ inputs.du }}${{ inputs.au && ' -> ' || '' }}${{ inputs.au }}
         run: |
-          .github/scripts/publier.sh "chore: championnats ${JOURS:-du jour} (collecte manuelle)"
+          .github/scripts/publier.sh "chore: championnats ${JOURS:-du jour} (collecte)"
+
+      - name: Alerte d'échec
+        if: failure()
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          JOUR: ${{ inputs.date || inputs.du }}
+        run: |
+          J=${JOUR:-$(date -u +%F)}
+          cd code && python run_ligues.py --alerte "$J" --cause workflow --donnees "$GITHUB_WORKSPACE" || true
+          cd "$GITHUB_WORKSPACE" && .github/scripts/publier.sh "chore: alerte championnats $J" || true

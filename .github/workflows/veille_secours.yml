@@ -1,0 +1,46 @@
+name: Veille de secours (championnats)
+
+# Chaque heure (à :37, GitHub saute souvent les crons mais celui-ci finit par passer) : un passage de la veille des
+# championnats (veille_ligues.py --une-fois), puis relance de battement.yml s'il n'est ni en file ni en cours.
+on:
+  schedule:
+    - cron: '37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: veille-secours
+  cancel-in-progress: true
+
+jobs:
+  veille:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: main
+          path: code
+          sparse-checkout: |
+            *.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Un passage de veille
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: cd code && python veille_ligues.py --une-fois
+      - name: Relance du battement s'il ne tourne pas
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          n=$(gh run list --repo "$REPO" --workflow battement.yml --limit 20 --json status --jq '[.[] | select(.status != "completed")] | length') || n="?"
+          if [ "$n" = "0" ]; then echo "battement absent : relance"; gh workflow run battement.yml --repo "$REPO" --ref main; else echo "battement en file ou en cours ($n)"; fi
