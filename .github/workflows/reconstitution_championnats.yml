@@ -1,0 +1,58 @@
+name: Reconstitution de la saison (championnats)
+
+# Rejoue les jours passés de la saison 2026-27 sans fichier publié (run_ligues.py --reconstituer du dépôt de code) : même
+# collecte que le jour même (déroulé, compos, stats, xG, momentum, notes, journée), classement RECALCULÉ depuis les scores,
+# `reconstituee: true` ; complète aussi le classement des jours collectés en direct sans classement valable. Jamais
+# etat_championnats.json ni notification. Reprenable (un jour écrit n'est plus demandé), budget de 40 min, publication à la fin,
+# puis se relance tant qu'il reste des jours ET que le passage a progressé. Même groupe que la collecte du jour (index partagés).
+on:
+  workflow_dispatch:
+    inputs:
+      ligues:
+        description: 'Championnats (fl1,pl,liga,sa,bl)'
+        required: false
+        default: 'fl1,pl,liga,sa,bl'
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: championnats
+  cancel-in-progress: false
+
+jobs:
+  reconstituer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: main
+          path: code
+          sparse-checkout: |
+            *.py
+            alias_equipes_wiki.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Reconstitution
+        id: rec
+        env:
+          PYTHONUNBUFFERED: "1"
+          LIGUES: ${{ inputs.ligues }}
+        run: cd code && python run_ligues.py --reconstituer --budget-min 40 --donnees "$GITHUB_WORKSPACE" --ligues "${LIGUES:-fl1,pl,liga,sa,bl}"
+      - name: Publication
+        if: ${{ !cancelled() }}
+        run: |
+          .github/scripts/publier.sh "chore: championnats (reconstitution de la saison)"
+      - name: Relance tant qu'il reste des jours (et que ce passage a progressé)
+        if: success() && steps.rec.outputs.restants != '' && steps.rec.outputs.restants != '0' && steps.rec.outputs.traites != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LIGUES: ${{ inputs.ligues }}
+        run: gh workflow run reconstitution_championnats.yml --repo "$GITHUB_REPOSITORY" --ref main -f "ligues=${LIGUES:-fl1,pl,liga,sa,bl}"
