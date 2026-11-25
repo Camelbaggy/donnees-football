@@ -51,7 +51,7 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
         run: |
-          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" --budget-historique 2 || echo "::warning::fiches non mises à jour"
+          cd code && python fiches_ligues.py --donnees "$GITHUB_WORKSPACE" --budget-historique 2 --budget-joueurs 0.5 || echo "::warning::fiches non mises à jour"
       - name: Publication
         if: ${{ !cancelled() }}
         run: |
