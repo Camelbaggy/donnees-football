@@ -70,5 +70,41 @@
    }
   },
   "maj": "2026-11-26T09:10:15Z"
+ },
+ "2026-11-27": {
+  "statut": "partiel",
+  "ligues": {
+   "fl1": {
+    "statut": "partiel",
+    "matchs": 1,
+    "termines": 0
+   },
+   "fl2": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "pl": {
+    "statut": "partiel",
+    "matchs": 1,
+    "termines": 0
+   },
+   "liga": {
+    "statut": "partiel",
+    "matchs": 1,
+    "termines": 0
+   },
+   "sa": {
+    "statut": "partiel",
+    "matchs": 1,
+    "termines": 0
+   },
+   "bl": {
+    "statut": "partiel",
+    "matchs": 1,
+    "termines": 0
+   }
+  },
+  "maj": "2026-11-26T23:10:01Z"
  }
 }
