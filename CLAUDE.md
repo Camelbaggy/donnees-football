@@ -27,3 +27,5 @@ Tout est en français (logs, messages de commit).
 - `historique_internationales.yml` (cron lundi 6 h 23 UTC + dispatch : `comps`, `relire`, `ref` ; auto-relance ; groupe `internationales`, timeout 58 min, budget 45) :
   `histoire_internationale.py` du dépôt de code -> `internationales/historique/` (`<comp>.json` = résultats de TOUTES les éditions, `equipes/<code>.json` = bilans et
   palmarès calculés, `index.json`, `etat.json`). Premier remplissage : `gh workflow run historique_internationales.yml --ref main` (un passage suffit, ~1 min). Ni état ni alerte.
+- `internationales/fiches/` : `collecte_internationales.yml` et `reconstitution_internationales.yml` exécutent `fiches_internationales.py` après la collecte
+  (étape « Fiches (jamais bloquant) », 12 min au plus) : `fiches/selections/`, `fiches/clubs/`, `fiches/joueurs/`, `fiches/cache/`. Fichiers générés seulement.
