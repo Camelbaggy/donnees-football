@@ -1,4 +1,45 @@
 {
+ "2026-11-25": {
+  "statut": "aucun_match",
+  "ligues": {
+   "por": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "ned": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "bel": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "tur": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "aut": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "gre": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   },
+   "nor": {
+    "statut": "aucun_match",
+    "matchs": 0,
+    "termines": 0
+   }
+  },
+  "maj": "2026-11-26T00:34:45Z"
+ },
  "2026-11-26": {
   "statut": "aucun_match",
   "ligues": {
