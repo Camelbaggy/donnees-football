@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# Publie championnats/ et etat_championnats.json (fichiers générés) sur main, push robuste (5 essais, rebase -X theirs : nos fichiers l'emportent).
+# Publie championnats/, internationales/ et etat_championnats.json (fichiers générés) sur main, push robuste (5 essais, rebase -X theirs : nos fichiers l'emportent).
 # Usage : publier.sh "message de commit"
 set -u
 msg=${1:-"chore: championnats (mise à jour automatique)"}
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 [ -d championnats ] && git add championnats
+[ -d internationales ] && git add internationales
 [ -f etat_championnats.json ] && git add etat_championnats.json
 [ -f etat_secondaires.json ] && git add etat_secondaires.json
 if git diff --staged --quiet; then
-  echo "Aucune modification de championnats/ à publier."
+  echo "Aucune modification de championnats/ ni internationales/ à publier."
   exit 0
 fi
 git commit -q -m "$msg"
