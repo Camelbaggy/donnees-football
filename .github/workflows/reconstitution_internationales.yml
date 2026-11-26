@@ -48,6 +48,7 @@ jobs:
           path: code
           sparse-checkout: |
             *.py
+            /*.json
           sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
