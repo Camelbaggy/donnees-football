@@ -1,0 +1,77 @@
+name: Historique des compétitions internationales
+
+# Résultats de TOUTES les éditions (Coupe du monde depuis 1930, Euro depuis 1960 éliminatoires compris, Ligue des nations, Coupe du monde des
+# clubs, Coupe intercontinentale), palmarès et bilans par sélection / club CALCULÉS (histoire_internationale.py du dépôt de code ;
+# décision du propriétaire du 26/11/2026 : résultats seuls pour l'historique) -> internationales/historique/ (<comp>.json, equipes/<code>.json,
+# index.json, etat.json). Reprenable : une édition finie et écrite n'est plus relue ; les éditions en cours (Ligue des nations 2026-27, Coupe
+# intercontinentale 2026, éliminatoires publiés d'avance) le sont à chaque passage. Cron hebdomadaire (lundi 6 h 23 UTC) pour les éditions en
+# cours et les nouvelles éditions ; dispatch pour le premier remplissage. Même groupe que la collecte et la reconstitution des compétitions
+# internationales (dossiers disjoints, mais un seul passage à la fois). Aucun état de notification, aucune alerte.
+on:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      comps:
+        description: 'Compétitions (cdm, euro, ldn, cdmc, ci séparées par des virgules ; vide = toutes)'
+        required: false
+        default: ''
+        type: string
+      relire:
+        description: 'Relire aussi les éditions déjà écrites et finies (true / false)'
+        required: false
+        default: 'false'
+        type: string
+      ref:
+        description: 'Branche du code (coupes-europe) à utiliser'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: internationales
+  cancel-in-progress: false
+
+jobs:
+  historique:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: ${{ inputs.ref || 'main' }}
+          path: code
+          sparse-checkout: |
+            *.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Historique
+        id: histo
+        env:
+          PYTHONUNBUFFERED: "1"
+          COMPS: ${{ inputs.comps }}
+          RELIRE: ${{ inputs.relire }}
+        run: |
+          args=()
+          [ -n "$COMPS" ] && args+=(--comps "$COMPS")
+          [ "$RELIRE" = "true" ] && args+=(--relire)
+          cd code && python histoire_internationale.py --donnees "$GITHUB_WORKSPACE" --budget-min 45 "${args[@]}"
+      - name: Publication
+        if: ${{ !cancelled() }}
+        run: |
+          .github/scripts/publier.sh "chore: historique des compétitions internationales"
+      - name: Relance tant qu'il reste des éditions (et que ce passage a progressé)
+        if: success() && steps.histo.outputs.restants != '' && steps.histo.outputs.restants != '0' && steps.histo.outputs.traites != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPS: ${{ inputs.comps }}
+          REF: ${{ inputs.ref || 'main' }}
+        run: gh workflow run historique_internationales.yml --repo "$GITHUB_REPOSITORY" --ref main -f "comps=$COMPS" -f "ref=$REF"

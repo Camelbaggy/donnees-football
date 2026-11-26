@@ -24,3 +24,6 @@ Tout est en français (logs, messages de commit).
   internationales qui jouent (`run_internationales.py --date J --etat`), puis `publier.sh` (ajoute aussi `etat_internationales.json`). Lancé par la veille
   (`battement.yml` / `veille_secours.yml` -> `veille_ligues.py`, famille « internationales » : jamais un jour sans match) ; pas d'alerte ntfy d'échec.
   `etat_internationales.json` (racine) est lu par la veille et par la notification commune (France, phases finales, clubs du monde).
+- `historique_internationales.yml` (cron lundi 6 h 23 UTC + dispatch : `comps`, `relire`, `ref` ; auto-relance ; groupe `internationales`, timeout 58 min, budget 45) :
+  `histoire_internationale.py` du dépôt de code -> `internationales/historique/` (`<comp>.json` = résultats de TOUTES les éditions, `equipes/<code>.json` = bilans et
+  palmarès calculés, `index.json`, `etat.json`). Premier remplissage : `gh workflow run historique_internationales.yml --ref main` (un passage suffit, ~1 min). Ni état ni alerte.
