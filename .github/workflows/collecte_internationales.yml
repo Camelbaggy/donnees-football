@@ -1,0 +1,59 @@
+name: Compétitions internationales (collecte d'un jour)
+
+# Collecte d'UN jour (heure de Paris) de TOUTES les compétitions internationales qui jouent ce jour-là (Coupe du monde, Euro, Ligue des
+# nations, Coupe du monde des clubs, Coupe intercontinentale ; éliminatoires compris) et publie internationales/ + etat_internationales.json
+# sur main. Le code est celui de Camelbaggy/coupes-europe (dépôt public), branche `ref` (main par défaut) : run_internationales.py
+# --date J --etat. Lancé chaque jour de match par la veille (battement.yml / veille_secours.yml, veille_ligues.py, famille
+# « internationales ») : premier relevé du jour (>= 9 h UTC) puis dès qu'un match est terminé depuis 2 h. etat_internationales.json est lu
+# par la veille et par la notification commune du jour (notification_jour.py, dépôt de code) : France et phases finales Euro / Coupe du
+# monde, toujours la Coupe du monde des clubs et la Coupe intercontinentale. Pas d'alerte ntfy d'échec à cette étape : la veille relance
+# tant que des matchs terminés ne sont pas collectés. Même groupe de concurrence que reconstitution_internationales.yml (dossiers
+# partagés) : une collecte peut attendre la fin d'une reconstitution en cours (58 min au plus).
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Jour (AAAA-MM-JJ, heure de Paris)'
+        required: true
+        type: string
+      ref:
+        description: 'Branche du code (coupes-europe) à utiliser'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: internationales
+  cancel-in-progress: false
+
+jobs:
+  collecte:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: ${{ inputs.ref || 'main' }}
+          path: code
+          sparse-checkout: |
+            *.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Collecte
+        env:
+          PYTHONUNBUFFERED: "1"
+          DATE: ${{ inputs.date }}
+        run: |
+          cd code && python run_internationales.py --date "$DATE" --donnees "$GITHUB_WORKSPACE" --etat
+      - name: Publication
+        env:
+          DATE: ${{ inputs.date }}
+        run: |
+          .github/scripts/publier.sh "chore: compétitions internationales $DATE (collecte)"
