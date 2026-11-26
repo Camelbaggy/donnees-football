@@ -9,6 +9,8 @@ name: Compétitions internationales (collecte d'un jour)
 # monde, toujours la Coupe du monde des clubs et la Coupe intercontinentale. Pas d'alerte ntfy d'échec à cette étape : la veille relance
 # tant que des matchs terminés ne sont pas collectés. Même groupe de concurrence que reconstitution_internationales.yml (dossiers
 # partagés) : une collecte peut attendre la fin d'une reconstitution en cours (58 min au plus).
+# Après la collecte, fiches_internationales.py (jamais bloquant, 12 min au plus) reconstruit internationales/fiches/ : fiches de nations, de clubs
+# du monde et de joueurs, calculées sur les fichiers de jour de ce dépôt.
 on:
   workflow_dispatch:
     inputs:
@@ -52,6 +54,13 @@ jobs:
           DATE: ${{ inputs.date }}
         run: |
           cd code && python run_internationales.py --date "$DATE" --donnees "$GITHUB_WORKSPACE" --etat
+      - name: Fiches de nations, de clubs et de joueurs (jamais bloquant)
+        if: success()
+        timeout-minutes: 12
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          cd code && python fiches_internationales.py --donnees "$GITHUB_WORKSPACE" --budget-joueurs 3 || echo "::warning::fiches internationales non mises à jour"
       - name: Publication
         env:
           DATE: ${{ inputs.date }}
