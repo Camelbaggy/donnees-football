@@ -6,6 +6,8 @@ name: Reconstitution des compétitions internationales
 # (liste officielle) + ESPN (Opta) pour la phase finale de la Coupe du monde et les compétitions de clubs. `reconstituee: true`,
 # jamais d'état ni de notification. Reprenable (un jour complet n'est plus demandé), budget de 40 min, publication à la fin, puis
 # se relance tant qu'il reste des jours ET que le passage a progressé. Groupe distinct des championnats (dossiers disjoints).
+# Après la collecte, fiches_internationales.py (jamais bloquant, 12 min au plus) reconstruit internationales/fiches/ : fiches de nations, de clubs
+# du monde et de joueurs, calculées sur les fichiers de jour de ce dépôt.
 on:
   workflow_dispatch:
     inputs:
@@ -61,6 +63,13 @@ jobs:
           [ -n "$COMP" ] && args+=(--comp "$COMP")
           [ -n "$EDITION" ] && args+=(--edition "$EDITION")
           cd code && python run_internationales.py --reconstituer --budget-min 40 --donnees "$GITHUB_WORKSPACE" "${args[@]}"
+      - name: Fiches de nations, de clubs et de joueurs (jamais bloquant)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 12
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          cd code && python fiches_internationales.py --donnees "$GITHUB_WORKSPACE" --budget-joueurs 4 || echo "::warning::fiches internationales non mises à jour"
       - name: Publication
         if: ${{ !cancelled() }}
         run: |
