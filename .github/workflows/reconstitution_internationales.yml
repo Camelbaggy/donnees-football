@@ -1,0 +1,75 @@
+name: Reconstitution des compétitions internationales
+
+# Rejoue les jours joués des éditions récentes (run_internationales.py --reconstituer du dépôt de code ; liste EDITIONS :
+# Coupe intercontinentale 2026, Ligue des nations 2026-27 et 2024-25, Coupe du monde 2026, Coupe du monde des clubs 2025, Euro 2024)
+# -> internationales/<compétition>/<édition>/ (fichiers par jour, index, classements des groupes, programme). Sources : UEFA ; FIFA
+# (liste officielle) + ESPN (Opta) pour la phase finale de la Coupe du monde et les compétitions de clubs. `reconstituee: true`,
+# jamais d'état ni de notification. Reprenable (un jour complet n'est plus demandé), budget de 40 min, publication à la fin, puis
+# se relance tant qu'il reste des jours ET que le passage a progressé. Groupe distinct des championnats (dossiers disjoints).
+on:
+  workflow_dispatch:
+    inputs:
+      comp:
+        description: 'Compétition seule (cdm, euro, ldn, cdmc, ci ; vide = toutes les éditions de EDITIONS)'
+        required: false
+        default: ''
+        type: string
+      edition:
+        description: 'Édition (avec comp ; ex. 2026, 2027 pour la Ligue des nations 2026-27)'
+        required: false
+        default: ''
+        type: string
+      ref:
+        description: 'Branche du code (coupes-europe) à utiliser'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: internationales
+  cancel-in-progress: false
+
+jobs:
+  reconstituer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Camelbaggy/coupes-europe
+          ref: ${{ inputs.ref || 'main' }}
+          path: code
+          sparse-checkout: |
+            *.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Reconstitution
+        id: rec
+        env:
+          PYTHONUNBUFFERED: "1"
+          COMP: ${{ inputs.comp }}
+          EDITION: ${{ inputs.edition }}
+        run: |
+          args=()
+          [ -n "$COMP" ] && args+=(--comp "$COMP")
+          [ -n "$EDITION" ] && args+=(--edition "$EDITION")
+          cd code && python run_internationales.py --reconstituer --budget-min 40 --donnees "$GITHUB_WORKSPACE" "${args[@]}"
+      - name: Publication
+        if: ${{ !cancelled() }}
+        run: |
+          .github/scripts/publier.sh "chore: compétitions internationales (reconstitution)"
+      - name: Relance tant qu'il reste des jours (et que ce passage a progressé)
+        if: success() && steps.rec.outputs.restants != '' && steps.rec.outputs.restants != '0' && steps.rec.outputs.traites != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMP: ${{ inputs.comp }}
+          EDITION: ${{ inputs.edition }}
+          REF: ${{ inputs.ref || 'main' }}
+        run: gh workflow run reconstitution_internationales.yml --repo "$GITHUB_REPOSITORY" --ref main -f "comp=$COMP" -f "edition=$EDITION" -f "ref=$REF"
