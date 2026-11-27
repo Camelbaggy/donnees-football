@@ -100,11 +100,11 @@
     "termines": 0
    },
    "bl": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    }
   },
-  "maj": "2026-11-26T23:10:01Z"
+  "maj": "2026-11-27T21:40:31Z"
  }
 }
