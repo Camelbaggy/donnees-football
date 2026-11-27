@@ -1880,12 +1880,12 @@
   "maj": "2026-11-25T23:47:58Z"
  },
  "2026-11-27": {
-  "statut": "partiel",
+  "statut": "complet",
   "ligues": {
    "por": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "ned": {
     "statut": "complet",
@@ -1918,6 +1918,6 @@
     "termines": 0
    }
   },
-  "maj": "2026-11-27T21:49:44Z"
+  "maj": "2026-11-27T22:20:55Z"
  }
 }
