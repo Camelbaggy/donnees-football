@@ -1903,9 +1903,9 @@
     "termines": 2
    },
    "aut": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "gre": {
     "statut": "aucun_match",
@@ -1918,6 +1918,6 @@
     "termines": 0
    }
   },
-  "maj": "2026-11-27T19:08:58Z"
+  "maj": "2026-11-27T20:38:45Z"
  }
 }
