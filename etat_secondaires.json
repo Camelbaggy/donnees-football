@@ -1919,5 +1919,46 @@
    }
   },
   "maj": "2026-11-27T22:20:55Z"
+ },
+ "2026-11-28": {
+  "statut": "partiel",
+  "ligues": {
+   "por": {
+    "statut": "partiel",
+    "matchs": 4,
+    "termines": 0
+   },
+   "ned": {
+    "statut": "partiel",
+    "matchs": 3,
+    "termines": 0
+   },
+   "bel": {
+    "statut": "partiel",
+    "matchs": 4,
+    "termines": 0
+   },
+   "tur": {
+    "statut": "partiel",
+    "matchs": 2,
+    "termines": 0
+   },
+   "aut": {
+    "statut": "partiel",
+    "matchs": 2,
+    "termines": 0
+   },
+   "gre": {
+    "statut": "partiel",
+    "matchs": 3,
+    "termines": 0
+   },
+   "nor": {
+    "statut": "partiel",
+    "matchs": 2,
+    "termines": 0
+   }
+  },
+  "maj": "2026-11-27T23:12:13Z"
  }
 }
