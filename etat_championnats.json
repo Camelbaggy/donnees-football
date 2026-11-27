@@ -75,9 +75,9 @@
   "statut": "partiel",
   "ligues": {
    "fl1": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "fl2": {
     "statut": "aucun_match",
@@ -95,9 +95,9 @@
     "termines": 0
    },
    "sa": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "bl": {
     "statut": "complet",
@@ -105,6 +105,6 @@
     "termines": 1
    }
   },
-  "maj": "2026-11-27T21:40:31Z"
+  "maj": "2026-11-27T21:59:32Z"
  }
 }
