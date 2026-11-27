@@ -1893,9 +1893,9 @@
     "termines": 1
    },
    "bel": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "tur": {
     "statut": "complet",
@@ -1918,6 +1918,6 @@
     "termines": 0
    }
   },
-  "maj": "2026-11-27T21:09:11Z"
+  "maj": "2026-11-27T21:49:44Z"
  }
 }
