@@ -72,7 +72,7 @@
   "maj": "2026-11-26T09:10:15Z"
  },
  "2026-11-27": {
-  "statut": "partiel",
+  "statut": "complet",
   "ligues": {
    "fl1": {
     "statut": "complet",
@@ -85,14 +85,14 @@
     "termines": 0
    },
    "pl": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "liga": {
-    "statut": "partiel",
+    "statut": "complet",
     "matchs": 1,
-    "termines": 0
+    "termines": 1
    },
    "sa": {
     "statut": "complet",
@@ -105,6 +105,6 @@
     "termines": 1
    }
   },
-  "maj": "2026-11-27T21:59:32Z"
+  "maj": "2026-11-27T22:20:18Z"
  }
 }
