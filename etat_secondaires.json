@@ -1,35 +1,4 @@
 {
- "2026-09-28": {
-  "statut": "aucun_match",
-  "ligues": {
-   "nor": {
-    "statut": "aucun_match",
-    "matchs": 0,
-    "termines": 0
-   },
-   "por": {
-    "statut": "aucun_match",
-    "matchs": 0,
-    "termines": 0
-   },
-   "ned": {
-    "statut": "aucun_match",
-    "matchs": 0,
-    "termines": 0
-   },
-   "bel": {
-    "statut": "aucun_match",
-    "matchs": 0,
-    "termines": 0
-   },
-   "gre": {
-    "statut": "aucun_match",
-    "matchs": 0,
-    "termines": 0
-   }
-  },
-  "maj": "2026-11-26T06:42:50Z"
- },
  "2026-09-29": {
   "statut": "aucun_match",
   "ligues": {
@@ -1941,7 +1910,7 @@
    "tur": {
     "statut": "partiel",
     "matchs": 2,
-    "termines": 0
+    "termines": 1
    },
    "aut": {
     "statut": "partiel",
@@ -1959,6 +1928,6 @@
     "termines": 0
    }
   },
-  "maj": "2026-11-27T23:12:13Z"
+  "maj": "2026-11-28T15:13:39Z"
  }
 }
